@@ -1,316 +1,341 @@
-﻿@using Services.Features.Appointments.Dtos
+﻿@using Domain.Entities.UserAccounts
+@using Services.Features.Appointments.Dtos
 @using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.Settings.Dtos
 @using Services.Features.UserAccounts.Dtos.User
 @if (!_loadScreen)
 {
-    <DexDialog>
-        <DialogTitle>
-            @_title
-        </DialogTitle>
-        <Content>
-            <MudItem>
-                <CascadingValue Value="Appointment.PatientId" Name="PatientId">
-                    <PatientAlertBar AlertType="@AlertType.Appointment.ToString()"/>
-                </CascadingValue>
-            </MudItem>
-            <DexForm Model="@Appointment" OnValidSubmit="SaveAppointment" ColumnCount="2">
-                <Fields>
-                    <FormItem Field="@nameof(AppointmentDto.PatientId)" ColumnSpan="2">
-                        <Template>
-                            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"
-                                                 SelectedPatientName="@SelectedPatientName"></PatientAutoComplete>
-                        </Template>
-                    </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.StartTime)" ColumnSpan="2">
-                        <Template>
-                            <label class="e-form-label">Start Time:</label>
-                            <SfDateTimePicker Min="@MinDate" TValue="DateTime" Value="@Appointment.StartTime"
-                                              MinTime="@MinTime" MaxTime="@MaxTime" Step="15">
-                                <DateTimePickerEvents TValue="DateTime" ValueChange="@OnChange">
-                                </DateTimePickerEvents>
-                            </SfDateTimePicker>
-                        </Template>
-                    </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.AppointmentTypeId)" ColumnSpan="1">
-                        <Template>
-                            <label class="e-form-label">Appointment Type:</label>
-                            <SfDropDownList TValue="Guid" TItem="AppointmentTypeDto" Placeholder="Select type"
-                                            DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
-                                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                <DropDownListEvents TValue="Guid" TItem="AppointmentTypeDto"
-                                                    ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
-                            </SfDropDownList>
-                        </Template>
-                    </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.ClinicSiteId)" ColumnSpan="1">
-                        <Template>
-                            <label class="e-form-label">Site Or Room:</label>
-                            <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site"
-                                            DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
-                                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                <DropDownListEvents TValue="Guid" TItem="ClinicSiteDto"
-                                                    ValueChange="OnClinicSiteChanged"></DropDownListEvents>
-                            </SfDropDownList>
-                        </Template>
-                    </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.HcpId)" ColumnSpan="1">
-                        <Template>
-                            <label class="e-form-label">HCP:</label>
-                            <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp"
-                                            DataSource="@HealthCares" @bind-Value="@Appointment.HcpId">
-                                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                            </SfDropDownList>
-                        </Template>
-                    </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.Duration)" ColumnSpan="1">
-                        <Template>
-                            <label class="e-form-label">Duration:</label>
-                            <SfNumericTextBox TValue="int" Value=@Appointment.Duration
-                                              Min="@AppointmentConstants.AppointmentInterval"
-                                              Step="@AppointmentConstants.AppointmentInterval"
-                                              Max="60"></SfNumericTextBox>
-                        </Template>
-                    </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.Description)" ColumnSpan="2">
-                        <Template>
-                            <label class="e-form-label">Description:</label>
-                            <SfTextBox @bind-Value="@Appointment.Description" Multiline></SfTextBox>
-                        </Template>
-                    </FormItem>
-                </Fields>
-                <Buttons>
-                    <DexLoadingButton Name="Save Appointment" Type="MudButtonType.Submit" Processing="_processing"
-                                      Icon="fas fa-floppy-disk"></DexLoadingButton>
-                </Buttons>
-            </DexForm>
-        </Content>
-        <ActionButtons>
-            @if (Id != Guid.Empty)
-            {
-                <MudMenu Label="View More Details" Color="Color.Primary" Variant="Variant.Filled">
-                    <MudMenuItem OnClick="ViewPatientDetails" >
-                        View Patient Details
-                    </MudMenuItem>
-                    <MudMenuItem OnClick="ViewConsultation">
-                        View Consultation Details
-                    </MudMenuItem>
-                    <MudMenuItem  OnClick="ViewAppointmentCard">
-                        View Appointment Card
-                    </MudMenuItem>
-                </MudMenu>
-                <BootstrapButton Name="Cancel" Click="CancelAppointment" Type="@UiConstants.Bootstrap.Danger"
-                              Icon="fas fa-ban"/>
-                <BootstrapButton Name="Delete" Click="() => DeleteAppointment(Id)" Type="@UiConstants.Bootstrap.Danger"
-                              Icon="fas fa-trash"/>
+	<DexDialog>
+		<DialogTitle>
+			@_title
+		</DialogTitle>
+		<Content>
+			<MudItem>
+				<CascadingValue Value="Appointment.PatientId" Name="PatientId">
+					<PatientAlertBar AlertType="@AlertType.Appointment.ToString()" />
+				</CascadingValue>
+			</MudItem>
+			<DexForm Model="@Appointment" OnValidSubmit="SaveAppointment" ColumnCount="2">
+				<Fields>
+					<FormItem Field="@nameof(AppointmentDto.PatientId)" ColumnSpan="2">
+						<Template>
+							<PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"
+							SelectedPatientName="@SelectedPatientName"></PatientAutoComplete>
+						</Template>
+					</FormItem>
+					<FormItem Field="@nameof(AppointmentDto.StartTime)" ColumnSpan="1">
+						<Template>
+							<label class="e-form-label">Start Time:</label>
+							<SfDateTimePicker Min="@MinDate" TValue="DateTime" Value="@Appointment.StartTime"
+							MinTime="@MinTime" MaxTime="@MaxTime" Step="15">
+								<DateTimePickerEvents TValue="DateTime" ValueChange="@OnChange">
+								</DateTimePickerEvents>
+							</SfDateTimePicker>
+						</Template>
+					</FormItem>
+					<FormItem Field="@nameof(AppointmentDto.AppointmentTypeId)" ColumnSpan="1">
+						<Template>
+							<label class="e-form-label">Appointment Type:</label>
+							<SfDropDownList TValue="Guid" TItem="AppointmentTypeDto" Placeholder="Select type"
+							DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
+								<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+								<DropDownListEvents TValue="Guid" TItem="AppointmentTypeDto"
+								ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
+							</SfDropDownList>
+						</Template>
+					</FormItem>
+					<FormItem Field="@nameof(AppointmentDto.ClinicSiteId)" ColumnSpan="1">
+						<Template>
+							<label class="e-form-label">Clinics:</label>
+							<SfDropDownList TValue="int" TItem="UserClinic" Placeholder="Select Clinic"
+							DataSource="@Clinics" @bind-Value="@Appointment.ClinicId">
+								<DropDownListFieldSettings Value="ClinicId" Text="Clinic.Name"></DropDownListFieldSettings>
+								<DropDownListEvents TValue="int" TItem="UserClinic"
+								ValueChange="OnClinicChanged"></DropDownListEvents>
+							</SfDropDownList>
+						</Template>
+					</FormItem>
+					<FormItem Field="@nameof(AppointmentDto.ClinicSiteId)" ColumnSpan="1">
+						<Template>
+							<label class="e-form-label">Site Or Room:</label>
+							<SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site"
+							DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
+								<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+								<DropDownListEvents TValue="Guid" TItem="ClinicSiteDto"
+								ValueChange="OnClinicSiteChanged"></DropDownListEvents>
+							</SfDropDownList>
+						</Template>
+					</FormItem>
+					<FormItem Field="@nameof(AppointmentDto.HcpId)" ColumnSpan="1">
+						<Template>
+							<label class="e-form-label">HCP:</label>
+							<SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp"
+							DataSource="@HealthCares" @bind-Value="@Appointment.HcpId">
+								<DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+							</SfDropDownList>
+						</Template>
+					</FormItem>
+					<FormItem Field="@nameof(AppointmentDto.Duration)" ColumnSpan="1">
+						<Template>
+							<label class="e-form-label">Duration:</label>
+							<SfNumericTextBox TValue="int" Value=@Appointment.Duration
+							Min="@AppointmentConstants.AppointmentInterval"
+							Step="@AppointmentConstants.AppointmentInterval"
+							Max="60"></SfNumericTextBox>
+						</Template>
+					</FormItem>
+					<FormItem Field="@nameof(AppointmentDto.Description)" ColumnSpan="2">
+						<Template>
+							<label class="e-form-label">Description:</label>
+							<SfTextBox @bind-Value="@Appointment.Description" Multiline></SfTextBox>
+						</Template>
+					</FormItem>
+				</Fields>
+				<Buttons>
+					<DexLoadingButton Name="Save Appointment" Type="MudButtonType.Submit" Processing="_processing"
+					Icon="fas fa-floppy-disk"></DexLoadingButton>
+				</Buttons>
+			</DexForm>
+		</Content>
+		<ActionButtons>
+			@if (Id != Guid.Empty)
+			{
+				<MudMenu Label="View More Details" Color="Color.Primary" Variant="Variant.Filled">
+					<MudMenuItem OnClick="ViewPatientDetails">
+						View Patient Details
+					</MudMenuItem>
+					<MudMenuItem OnClick="ViewConsultation">
+						View Consultation Details
+					</MudMenuItem>
+					<MudMenuItem OnClick="ViewAppointmentCard">
+						View Appointment Card
+					</MudMenuItem>
+				</MudMenu>
+				<BootstrapButton Name="Cancel" Click="CancelAppointment" Type="@UiConstants.Bootstrap.Danger"
+				Icon="fas fa-ban" />
+				<BootstrapButton Name="Delete" Click="() => DeleteAppointment(Id)" Type="@UiConstants.Bootstrap.Danger"
+				Icon="fas fa-trash" />
 
-                @if (Appointment.IsSeries)
-                {
-                    <BootstrapButton Name="Delete Series"
-                                  Click="() => DeleteAppointmentSeries(Appointment.CustomRecurrenceId)"
-                                  Type="@UiConstants.Bootstrap.Danger" Icon="fas fa-trash"/>
-                }
-            }
-        </ActionButtons>
-    </DexDialog>
+				@if (Appointment.IsSeries)
+				{
+					<BootstrapButton Name="Delete Series"
+					Click="() => DeleteAppointmentSeries(Appointment.CustomRecurrenceId)"
+					Type="@UiConstants.Bootstrap.Danger" Icon="fas fa-trash" />
+				}
+			}
+		</ActionButtons>
+	</DexDialog>
 }
 else
 {
-    <DexProgressBar/>
+	<DexProgressBar />
 }
 
 
 @code {
 
-    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public Guid Id { get; set; }
-    [Parameter] public Guid HcpId { get; set; }
-    [Parameter] public Guid SelectedPatientId { get; set; } = Guid.Empty;
-    [Parameter] public DateTime StartDate { get; set; }
-    [Parameter] public List<PatientListDto> PatientList { get; set; }
-    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
-    private AppointmentDto Appointment { get; set; } = new();
-    private List<AppointmentTypeDto> AppointmentTypes { get; set; } = new();
-    private List<ClinicSiteDto> ClinicSites { get; set; } = new();
-    private string _title;
-    private bool _processing;
-    private bool _loadScreen;
-    private string SelectedPatientName { get; set; }
-    private DateTime MinDate { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 9, 00, 0);
+	[CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+	[Parameter] public Guid Id { get; set; }
+	[Parameter] public Guid HcpId { get; set; }
+	[Parameter] public Guid SelectedPatientId { get; set; } = Guid.Empty;
+	[Parameter] public DateTime StartDate { get; set; }
+	[Parameter] public List<PatientListDto> PatientList { get; set; }
+	[Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
+	private AppointmentDto Appointment { get; set; } = new();
+	private List<AppointmentTypeDto> AppointmentTypes { get; set; } = new();
+	private List<ClinicSiteDto> ClinicSites { get; set; } = new();
+	private List<UserClinic> Clinics { get; set; } = [];
 
-    private DateTime MinTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 9, 00, 0);
-    private DateTime MaxTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 17, 00, 0);
+	private string _title;
+	private bool _processing;
+	private bool _loadScreen;
+	private string SelectedPatientName { get; set; }
+	private DateTime MinDate { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 9, 00, 0);
 
-    protected override async Task OnInitializedAsync()
-    {
-        _loadScreen = true;
-        await Task.Delay(500);
-        await GetAppointmentTypes();
-        await GetClinicSites();
+	private DateTime MinTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 9, 00, 0);
+	private DateTime MaxTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 17, 00, 0);
 
-        //For New Appointment
-        if (Id == Guid.Empty)
-        {
-            _title = "New Appointment";
-            Appointment.StartTime = StartDate;
-            Appointment.HcpId = HcpId;
-            Appointment.PatientId = SelectedPatientId;
-            Appointment.PatientName = SelectedPatientName;
-        }
-        else
-        {
-            _title = "Edit Appointment";
-            var res = await UnitOfWork.Appointment.GetAppointment(Id);
-            if (res.Succeeded)
-            {
-                Appointment = Mapper.Map<AppointmentDto>(res.Data);
-                var patient = PatientList.FirstOrDefault(x => x.Id == Appointment.PatientId);
-                Appointment.Type = AppointmentTypes.FirstOrDefault(x => x.Id == Appointment.AppointmentTypeId)!.Name;
-                Appointment.PatientName = patient!.FullName;
-                SelectedPatientName = patient!.FullName;
-                Appointment.Location = ClinicSites.FirstOrDefault(x => x.Id == Appointment.ClinicSiteId)!.Name;
-            }
-        }
+	protected override async Task OnInitializedAsync()
+	{
+		_loadScreen = true;
+		await Task.Delay(500);
+		await GetAppointmentTypes();
+		await GetClinics();
+		//For New Appointment
+		if (Id == Guid.Empty)
+		{
+			_title = "New Appointment";
+			Appointment.StartTime = StartDate;
+			Appointment.HcpId = HcpId;
+			Appointment.PatientId = SelectedPatientId;
+			Appointment.PatientName = SelectedPatientName;
+		}
+		else
+		{
+			_title = "Edit Appointment";
+			var res = await UnitOfWork.Appointment.GetAppointment(Id);
+			if (res.Succeeded)
+			{
+				Appointment = Mapper.Map<AppointmentDto>(res.Data);
+				var patient = PatientList.FirstOrDefault(x => x.Id == Appointment.PatientId);
+				Appointment.Type = AppointmentTypes.FirstOrDefault(x => x.Id == Appointment.AppointmentTypeId)!.Name;
+				Appointment.PatientName = patient!.FullName;
+				SelectedPatientName = patient!.FullName;
+				Appointment.Location = ClinicSites.FirstOrDefault(x => x.Id == Appointment.ClinicSiteId)!.Name;
+			}
+		}
 
-        _loadScreen = false;
-        StateHasChanged();
-        MudDialog.StateHasChanged();
-    }
+		_loadScreen = false;
+		StateHasChanged();
+		MudDialog.StateHasChanged();
+	}
 
 
-    private async Task GetAppointmentTypes()
-    {
-        AppointmentTypes = await UnitOfWork.Setting.GetAppointmentTypes();
-    }
+	private async Task GetAppointmentTypes()
+	{
+		AppointmentTypes = await UnitOfWork.Setting.GetAppointmentTypes();
+	}
 
-    private async Task GetClinicSites()
-    {
-        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
-    }
+	private async Task GetClinicSites(int clinicId)
+	{
+		ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(clinicId);
+	}
 
-    private async Task SaveAppointment()
-    {
-        _processing = true;
-        await Task.Delay(2500);
-        var res = await UnitOfWork.Appointment.SaveAppointment(Id, Appointment);
-        if (res.Succeeded)
-        {
-            Snackbar.SuccessMessage(res.Messages.First());
-            MudDialog.Close();
-        }
-        else
-        {
-            Snackbar.FailMessage(res.Messages.First());
-        }
+	private async Task GetClinics()
+	{
+		Clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.Auth.CurrentUser.UserId);
+	}
 
-        _processing = false;
-    }
+	private async Task SaveAppointment()
+	{
+		_processing = true;
+		await Task.Delay(2500);
+		var res = await UnitOfWork.Appointment.SaveAppointment(Id, Appointment);
+		if (res.Succeeded)
+		{
+			Snackbar.SuccessMessage(res.Messages.First());
+			MudDialog.Close();
+		}
+		else
+		{
+			Snackbar.FailMessage(res.Messages.First());
+		}
 
-    private void ChangePatient(ChangeEventArgs<string, PatientListDto> args)
-    {
-        var patient = args.ItemData;
-        if (patient != null)
-        {
-            Appointment.PatientId = patient.Id;
-            Appointment.PatientName = patient.FullName;
-            SelectedPatientName = patient.FullName;
-            StateHasChanged();
-        }
-        else
-        {
-            Appointment.PatientId = Guid.Empty;
-        }
+		_processing = false;
+	}
 
-        MudDialog.StateHasChanged();
-    }
+	private void ChangePatient(ChangeEventArgs<string, PatientListDto> args)
+	{
+		var patient = args.ItemData;
+		if (patient != null)
+		{
+			Appointment.PatientId = patient.Id;
+			Appointment.PatientName = patient.FullName;
+			SelectedPatientName = patient.FullName;
+			StateHasChanged();
+		}
+		else
+		{
+			Appointment.PatientId = Guid.Empty;
+		}
 
-    Task OnClinicSiteChanged(ChangeEventArgs<Guid, ClinicSiteDto> args)
-    {
-        var clinicSite = args.ItemData;
-        Appointment.ClinicSiteId = clinicSite.Id;
-        Appointment.Location = clinicSite.Name;
-        return Task.CompletedTask;
-    }
+		MudDialog.StateHasChanged();
+	}
 
-    Task OnAppointmentTypeChanged(ChangeEventArgs<Guid, AppointmentTypeDto> args)
-    {
-        var appointmentType = AppointmentTypes.FirstOrDefault(x => x.Id == args.Value);
-        Appointment.AppointmentTypeId = appointmentType.Id;
-        Appointment.Duration = appointmentType.Duration;
-        Appointment.Type = appointmentType.Name;
-        return Task.CompletedTask;
-    }
+	void OnClinicSiteChanged(ChangeEventArgs<Guid, ClinicSiteDto> args)
+	{
+		var clinicSite = args.ItemData;
+		Appointment.ClinicSiteId = clinicSite.Id;
+		Appointment.Location += ", " + clinicSite.Name;
+	}
 
-    private async Task CancelAppointment()
-    {
-        var parameters = new DialogParameters();
-        parameters.Add("AppointmentId", Id);
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
-        var dialogResult = await DialogService.ShowAsync<CancelAppointment>("", parameters, options);
-        var result = await dialogResult.Result;
-        if (!result.Canceled)
-        {
-            MudDialog.Close();
-        }
-    }
+	private async Task OnClinicChanged(ChangeEventArgs<int, UserClinic> args)
+	{
+		var clinic = args.ItemData;
+		await GetClinicSites(clinic.ClinicId);
+		Appointment.Location = clinic.Clinic.Name;
 
-    private async Task DeleteAppointment(Guid id)
-    {
-        var parameters = new DialogParameters();
-        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
-        var result = await dialogresult.Result;
-        if (!result.Canceled)
-        {
-            await UnitOfWork.Appointment.DeleteAppointment(id);
-            Snackbar.SuccessMessage("Appointment has been deleted.");
+	}
 
-            MudDialog.Close();
-        }
-    }
+	Task OnAppointmentTypeChanged(ChangeEventArgs<Guid, AppointmentTypeDto> args)
+	{
+		var appointmentType = AppointmentTypes.FirstOrDefault(x => x.Id == args.Value);
+		Appointment.AppointmentTypeId = appointmentType.Id;
+		Appointment.Duration = appointmentType.Duration;
+		Appointment.Type = appointmentType.Name;
+		return Task.CompletedTask;
+	}
 
-    private async Task DeleteAppointmentSeries(Guid id)
-    {
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", "are you sure you want to delete series?");
-        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
-        var result = await dialogresult.Result;
-        if (!result.Canceled)
-        {
-            await UnitOfWork.Appointment.DeleteAppointmentSeries(id);
-            Snackbar.SuccessMessage("Appointment series has been deleted.");
-            MudDialog.Close();
-        }
-    }
+	private async Task CancelAppointment()
+	{
+		var parameters = new DialogParameters();
+		parameters.Add("AppointmentId", Id);
+		var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+		var dialogResult = await DialogService.ShowAsync<CancelAppointment>("", parameters, options);
+		var result = await dialogResult.Result;
+		if (!result.Canceled)
+		{
+			MudDialog.Close();
+		}
+	}
 
-    private void OnChange(ChangedEventArgs<DateTime> args)
-    {
-        Appointment.StartTime = args.Value;
-        StateHasChanged();
-    }
+	private async Task DeleteAppointment(Guid id)
+	{
+		var parameters = new DialogParameters();
+		var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+		var result = await dialogresult.Result;
+		if (!result.Canceled)
+		{
+			await UnitOfWork.Appointment.DeleteAppointment(id);
+			Snackbar.SuccessMessage("Appointment has been deleted.");
 
-    private async Task ViewPatientDetails()
-    {
-        var parameters = new DialogParameters();
-        parameters.Add("PatientId", Appointment.PatientId);
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
-        await DialogService.ShowAsync<PatientSummary>("", parameters, options);
-    }
+			MudDialog.Close();
+		}
+	}
 
-    private void ViewConsultation()
-    {
-        Snackbar.SuccessMessage("Consultation Not Selected");
-    }
+	private async Task DeleteAppointmentSeries(Guid id)
+	{
+		var parameters = new DialogParameters();
+		parameters.Add("ContentText", "are you sure you want to delete series?");
+		var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+		var result = await dialogresult.Result;
+		if (!result.Canceled)
+		{
+			await UnitOfWork.Appointment.DeleteAppointmentSeries(id);
+			Snackbar.SuccessMessage("Appointment series has been deleted.");
+			MudDialog.Close();
+		}
+	}
 
-    private async Task ViewAppointmentCard()
-    {
-        var parameters = new DialogParameters();
-        parameters.Add("Appointment", Appointment);
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
-        var dialogResult = await DialogService.ShowAsync<AppointmentCard>("", parameters, options);
-        var result = await dialogResult.Result;
-        if (!result.Canceled)
-        {
-        }
-    }
+	private void OnChange(ChangedEventArgs<DateTime> args)
+	{
+		Appointment.StartTime = args.Value;
+		StateHasChanged();
+	}
 
+	private async Task ViewPatientDetails()
+	{
+		var parameters = new DialogParameters();
+		parameters.Add("PatientId", Appointment.PatientId);
+		var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center };
+		await DialogService.ShowAsync<PatientSummary>("", parameters, options);
+	}
+
+	private void ViewConsultation()
+	{
+		Snackbar.SuccessMessage("Consultation Not Selected");
+	}
+
+	private async Task ViewAppointmentCard()
+	{
+		var parameters = new DialogParameters();
+		parameters.Add("Appointment", Appointment);
+		var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+		var dialogResult = await DialogService.ShowAsync<AppointmentCard>("", parameters, options);
+		var result = await dialogResult.Result;
+		if (!result.Canceled)
+		{
+		}
+	}
+	
 }
