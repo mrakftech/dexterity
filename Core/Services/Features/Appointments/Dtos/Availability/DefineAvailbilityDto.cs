@@ -8,5 +8,5 @@ public class DefineAvailbilityDto
     public TimeSpan EndHour { get; set; } = new TimeSpan(17, 0, 0);
     public int[] WorkingDays { get; set; }
 
-    public List<AppointmentDto> Exceptoins { get; set; }
+    public List<GetAppointmentDto> Exceptoins { get; set; }
 }

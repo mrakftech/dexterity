@@ -7,18 +7,18 @@
         @if (!_processing)
         {
             <MudText Class="text-bold">@($"HCP: {_defineAvailabilityData.Name}")</MudText>
-            <SfSchedule TValue="AppointmentDto"
+            <SfSchedule TValue="GetAppointmentDto"
                         Height="550px"
                         @bind-CurrentView="@_currentView"
                         WorkDays="_defineAvailabilityData.WorkingDays"
                         ShowWeekend="false"
                         StartHour="09:00"
                         EndHour="17:00" AllowDragAndDrop="true">
-                <ScheduleEvents TValue="AppointmentDto" ></ScheduleEvents>
+                <ScheduleEvents TValue="GetAppointmentDto" ></ScheduleEvents>
                 <ScheduleEventSettings AllowAdding="false"
                                        AllowDeleting="false"
                                        AllowEditing="false" 
-                                       TValue="AppointmentDto"
+                                       TValue="GetAppointmentDto"
                                        DataSource="@_dataSource"></ScheduleEventSettings>
                 
                 <ScheduleTimeScale SlotCount="1" Interval="@_defineAvailabilityData.SlotInterval"
@@ -41,7 +41,7 @@
     private DefineAvailbilityDto _defineAvailabilityData = new();
     private bool _processing;
     View _currentView = View.Week;
-    List<AppointmentDto> _dataSource = new();
+    List<GetAppointmentDto> _dataSource = new();
    
     protected override async Task OnInitializedAsync()
     {

@@ -15,7 +15,7 @@
     </MudItem>
     <MudItem>
         <label>HCP:</label>
-        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares" @bind-Value="@Appointment.HcpId">
+        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares" @bind-Value="@GetAppointment.HcpId">
             <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
         </SfDropDownList>
     </MudItem>
@@ -23,14 +23,14 @@
         <MudStack Row>
             <MudItem md="6">
                 <label>Appointment Type:</label>
-                <SfDropDownList TValue="Guid" TItem="AppointmentTypeDto" Placeholder="Select type" DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
+                <SfDropDownList TValue="Guid" TItem="AppointmentTypeDto" Placeholder="Select type" DataSource="@AppointmentTypes" @bind-Value="@GetAppointment.AppointmentTypeId">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                     <DropDownListEvents TValue="Guid" TItem="AppointmentTypeDto" ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
                 </SfDropDownList>
             </MudItem>
             <MudItem md="6">
                 <label>Start Time:</label>
-                <SfDateTimePicker Min="MinDate" TValue="DateTime" Value="@Appointment.StartTime" MinTime="@MinTime" MaxTime="@MaxTime" Step="15">
+                <SfDateTimePicker Min="MinDate" TValue="DateTime" Value="@GetAppointment.StartTime" MinTime="@MinTime" MaxTime="@MaxTime" Step="15">
                     <DateTimePickerEvents TValue="DateTime" ValueChange="@OnChange">
                     </DateTimePickerEvents>
                 </SfDateTimePicker>
@@ -42,14 +42,14 @@
         <MudStack Row>
             <MudItem md="6">
                 <label>Site:</label>
-                <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
+                <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@GetAppointment.ClinicSiteId">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                     <DropDownListEvents TValue="Guid" TItem="ClinicSiteDto" ValueChange="OnClinicSiteChanged"></DropDownListEvents>
                 </SfDropDownList>
             </MudItem>
             <MudItem md="6">
                 <label>Duration</label>
-                <SfNumericTextBox TValue="int" Value="@Appointment.Duration" Min="5" Step="5" Max="60"></SfNumericTextBox>
+                <SfNumericTextBox TValue="int" Value="@GetAppointment.Duration" Min="5" Step="5" Max="60"></SfNumericTextBox>
             </MudItem>
         </MudStack>
     </MudItem>
@@ -57,14 +57,14 @@
         <MudStack Row>
             <MudItem md="12">
                 <label>Description:</label>
-                <SfTextBox @bind-Value="@Appointment.Description" Multiline></SfTextBox>
+                <SfTextBox @bind-Value="@GetAppointment.Description" Multiline></SfTextBox>
             </MudItem>
          
         </MudStack>
     </MudItem>
     <MudItem Class="mt-3">
         @* <MudText>@Appointment.RecurrenceRule</MudText> *@
-        <SfRecurrenceEditor @bind-Value="@Appointment.RecurrenceRule" Frequencies="_repeats" EndTypes="@_endtypes"></SfRecurrenceEditor>
+        <SfRecurrenceEditor @bind-Value="@GetAppointment.RecurrenceRule" Frequencies="_repeats" EndTypes="@_endtypes"></SfRecurrenceEditor>
     </MudItem>
     <DexButton Name="Validate" Click="ValidateAppointments" FullWidth="false"></DexButton>
 </MudStack>
@@ -73,7 +73,7 @@
 @code {
     [Parameter] public List<HealthcareDto> HealthCares { get; set; } = [];
     [Parameter] public List<PatientListDto> PatientList { get; set; } = [];
-    private AppointmentDto Appointment { get; set; } = new();
+    private GetAppointmentDto GetAppointment { get; set; } = new();
     private List<AppointmentTypeDto> AppointmentTypes { get; set; } = [];
     private List<ClinicSiteDto> ClinicSites { get; set; } = [];
     string RecurrenceRule { get; set; } = "";
@@ -104,54 +104,53 @@
         var patient = args.ItemData;
         if (patient != null)
         {
-            Appointment.PatientId = patient.Id;
-            Appointment.PatientName = patient.FullName;
+            GetAppointment.PatientId = patient.Id;
+            GetAppointment.PatientName = patient.FullName;
         }
     }
 
     Task OnAppointmentTypeChanged(ChangeEventArgs<Guid, AppointmentTypeDto> args)
     {
         var appointmentType = args.ItemData;
-        Appointment.AppointmentTypeId = appointmentType.Id;
-        Appointment.Duration = appointmentType.Duration;
-        Appointment.Type = appointmentType.Name;
+        GetAppointment.AppointmentTypeId = appointmentType.Id;
+        GetAppointment.Duration = appointmentType.Duration;
+        GetAppointment.Type = appointmentType.Name;
         return Task.CompletedTask;
     }
 
     Task OnClinicSiteChanged(ChangeEventArgs<Guid, ClinicSiteDto> args)
     {
         var clinicSite = args.ItemData;
-        Appointment.Location = clinicSite.Name;
         return Task.CompletedTask;
     }
 
     private async Task ValidateAppointments()
     {
         _error = "";
-        if (Appointment.PatientId == Guid.Empty)
+        if (GetAppointment.PatientId == Guid.Empty)
         {
             _error = "Please select patient";
             return;
         }
 
-        if (Appointment.AppointmentTypeId == Guid.Empty)
+        if (GetAppointment.AppointmentTypeId == Guid.Empty)
         {
             _error = "Please select appointment type";
             return;
         }
 
-        if (Appointment.HcpId == Guid.Empty)
+        if (GetAppointment.HcpId == Guid.Empty)
         {
             _error = "Please select Health care professional";
             return;
         }
 
-        if (!string.IsNullOrWhiteSpace(Appointment.RecurrenceRule))
+        if (!string.IsNullOrWhiteSpace(GetAppointment.RecurrenceRule))
         {
-            var recurrenceDates = RecurringHelper.GetRecurrenceDateTimeCollection(Appointment.RecurrenceRule, Appointment.StartTime, 20).ToList();
+            var recurrenceDates = RecurringHelper.GetRecurrenceDateTimeCollection(GetAppointment.RecurrenceRule, GetAppointment.StartTime, 20).ToList();
             var parameters = new DialogParameters
             {
-                {"Appointment", Appointment},
+                {"Appointment", GetAppointment},
                 {"RecurrencDates", recurrenceDates}
             };
             var options = new DialogOptions()
@@ -171,7 +170,7 @@
 
     private void OnChange(ChangedEventArgs<DateTime> args)
     {
-        Appointment.StartTime = args.Value;
+        GetAppointment.StartTime = args.Value;
         StateHasChanged();
     }
 

@@ -11,7 +11,7 @@ public static class ApplicationState
     public static class SelectedAppointment
     {
         public static Guid Id { get; set; }
-        public static AppointmentDto Appointment { get; set; }
+        public static GetAppointmentDto GetAppointment { get; set; }
     }
 
     public static class Patient
@@ -49,9 +49,18 @@ public static class ApplicationState
     }
     
     
-    
-    
-    
+    public static int GetSelectedClinicId()
+    {
+       return ApplicationState.Auth.CurrentUser.ClinicId;
+    }
+
+    public static Guid GetUserCurrentId()
+    {
+        return ApplicationState.Auth.CurrentUser.UserId;
+    }
+
+
+
     public static void SetPatientId(Guid patientId,string name=null)
     {
         Patient.Id = patientId;

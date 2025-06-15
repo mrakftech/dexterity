@@ -9,11 +9,12 @@ public class AppointmentProfile : Profile
 {
     public AppointmentProfile()
     {
-        CreateMap<Appointment, AppointmentDto>()
+        CreateMap<Appointment, GetAppointmentDto>()
             .ForMember(x => x.PatientName, c => c.MapFrom(m => m.Patient.FullName))
             .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.Hcp.FullName))
             .ReverseMap();
-        
+        CreateMap<UpsertAppointmentDto, GetAppointmentDto>()
+            .ReverseMap();
         CreateMap<Appointment, SearchAppointmentDto>()
             .ForMember(x => x.PatientName, c => c.MapFrom(m => m.Patient.FullName))
             .ForMember(x => x.DateOfBirth, c => c.MapFrom(m => m.Patient.DateOfBirth))

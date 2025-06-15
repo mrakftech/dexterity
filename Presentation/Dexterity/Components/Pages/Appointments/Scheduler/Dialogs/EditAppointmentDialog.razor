@@ -1,4 +1,5 @@
-﻿@using Services.Features.Appointments.Dtos
+﻿@using Domain.Entities.UserAccounts
+@using Services.Features.Appointments.Dtos
 @using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.Settings.Dtos
 @using Services.Features.UserAccounts.Dtos.User
@@ -7,67 +8,78 @@
     <DexDialog>
         <DialogTitle>Edit Appointment</DialogTitle>
         <Content>
-            <DexForm Model="@Appointment" OnValidSubmit="SaveAppointment" ColumnCount="2">
+            <DexForm Model="@AppointmentData" OnValidSubmit="SaveAppointment" ColumnCount="2">
                 <Fields>
-                    <FormItem Field="@nameof(AppointmentDto.PatientId)" ColumnSpan="2">
+                    <FormItem Field="@nameof(GetAppointmentDto.PatientId)" ColumnSpan="2">
                         <Template>
                             <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"
-                                                 SelectedPatientName="@SelectedPatientName"></PatientAutoComplete>
+                            SelectedPatientName="@SelectedPatientName"></PatientAutoComplete>
                         </Template>
                     </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.StartTime)" ColumnSpan="2">
+                    <FormItem Field="@nameof(GetAppointmentDto.StartTime)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Start Time:</label>
-                            <SfDateTimePicker Min="@DateTime.Today" TValue="DateTime" @bind-Value="@Appointment.StartTime">
+                            <SfDateTimePicker Min="@DateTime.Today" TValue="DateTime" @bind-Value="@AppointmentData.StartTime">
                                 <DateTimePickerEvents TValue="DateTime">
                                 </DateTimePickerEvents>
                             </SfDateTimePicker>
                         </Template>
                     </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.AppointmentTypeId)" ColumnSpan="1">
+                    <FormItem Field="@nameof(GetAppointmentDto.AppointmentTypeId)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Appointment Type:</label>
                             <SfDropDownList TValue="Guid" TItem="AppointmentTypeDto" Placeholder="Select type"
-                                            DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
+                            DataSource="@AppointmentTypes" @bind-Value="@AppointmentData.AppointmentTypeId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                             </SfDropDownList>
                         </Template>
                     </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.ClinicSiteId)" ColumnSpan="1">
+                    <FormItem Field="@nameof(GetAppointmentDto.ClinicId)" ColumnSpan="1">
+                        <Template>
+                            <label class="e-form-label">Clinics:</label>
+                            <SfDropDownList TValue="int" TItem="UserClinic" Placeholder="Select Clinic"
+                            DataSource="@Clinics" @bind-Value="@AppointmentData.ClinicId">
+                                <DropDownListFieldSettings Value="ClinicId" Text="Clinic.Name"></DropDownListFieldSettings>
+                                <DropDownListEvents TValue="int" TItem="UserClinic"
+                                ValueChange="OnClinicChanged"></DropDownListEvents>
+                            </SfDropDownList>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(GetAppointmentDto.ClinicSiteId)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Site Or Room:</label>
                             <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site"
-                                            DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
+                            DataSource="@ClinicSites" @bind-Value="@AppointmentData.ClinicSiteId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                             </SfDropDownList>
                         </Template>
                     </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.HcpId)" ColumnSpan="1">
+                    <FormItem Field="@nameof(GetAppointmentDto.HcpId)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">HCP:</label>
                             <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp"
-                                            DataSource="@HealthCares" @bind-Value="@Appointment.HcpId">
+                            DataSource="@HealthCares" @bind-Value="@AppointmentData.HcpId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                             </SfDropDownList>
                         </Template>
                     </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.Duration)" ColumnSpan="1">
+                    <FormItem Field="@nameof(GetAppointmentDto.Duration)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Duration:</label>
-                            <SfNumericTextBox TValue="int"  Min="5" Step="5" @bind-Value="@Appointment.Duration"
-                                              Max="60"></SfNumericTextBox>
+                            <SfNumericTextBox TValue="int"  Min="5" Step="5" @bind-Value="@AppointmentData.Duration"
+                            Max="60"></SfNumericTextBox>
                         </Template>
                     </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.Description)" ColumnSpan="2">
+                    <FormItem Field="@nameof(GetAppointmentDto.Description)" ColumnSpan="2">
                         <Template>
                             <label class="e-form-label">Description:</label>
-                            <SfTextBox @bind-Value="@Appointment.Description" Multiline></SfTextBox>
+                            <SfTextBox @bind-Value="@AppointmentData.Description" Multiline></SfTextBox>
                         </Template>
                     </FormItem>
                 </Fields>
                 <Buttons>
                     <DexLoadingButton Name="Save Appointment" Type="MudButtonType.Submit" Processing="_processing"
-                                      Icon="fas fa-floppy-disk"></DexLoadingButton>
+                    Icon="fas fa-floppy-disk"></DexLoadingButton>
                 </Buttons>
             </DexForm>
         </Content>
@@ -85,9 +97,11 @@ else
     List<PatientListDto> PatientList { get; set; } = new();
     List<AppointmentTypeDto> AppointmentTypes { get; set; } = new();
     List<ClinicSiteDto> ClinicSites { get; set; } = new();
+    private List<UserClinic> Clinics { get; set; } = [];
+
     bool _initialLoad;
     bool _processing;
-    AppointmentDto Appointment { get; set; } = new();
+    UpsertAppointmentDto AppointmentData { get; set; } = new();
     string SelectedPatientName { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -96,12 +110,13 @@ else
         await GetHealthCares();
         await GetPatients();
         await GetAppointmentTypes();
-        await GetClinicSites();
+        await GetClinics();
+        await GetClinicSites(ApplicationState.GetSelectedClinicId());
         var res = await UnitOfWork.Appointment.GetAppointment(Id);
         if (res.Succeeded)
         {
-            Appointment = Mapper.Map<AppointmentDto>(res.Data);
-            SelectedPatientName = Appointment.PatientName;
+            AppointmentData = Mapper.Map<UpsertAppointmentDto>(res.Data);
+            SelectedPatientName = AppointmentData.PatientName;
         }
 
         _initialLoad = false;
@@ -123,33 +138,41 @@ else
         AppointmentTypes = await UnitOfWork.Setting.GetAppointmentTypes();
     }
 
-    private async Task GetClinicSites()
+    private async Task GetClinicSites(int clinicId)
     {
-        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
+        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(clinicId);
+    }
+    private async Task GetClinics()
+    {
+        Clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.GetUserCurrentId());
     }
 
+    private async Task OnClinicChanged(ChangeEventArgs<int, UserClinic> args)
+    {
+        var clinic = args.ItemData;
+        await GetClinicSites(clinic.ClinicId);
+    }
     private void ChangePatient(ChangeEventArgs<string, PatientListDto> args)
     {
         var patient = args.ItemData;
         if (patient != null)
         {
-            Appointment.PatientId = patient.Id;
+            AppointmentData.PatientId = patient.Id;
             SelectedPatientName = patient.FullName;
             StateHasChanged();
         }
         else
         {
-            Appointment.PatientId = Guid.Empty;
+            AppointmentData.PatientId = Guid.Empty;
         }
     }
 
     private async Task SaveAppointment()
     {
         _processing = true;
-        Appointment.Location = ClinicSites.FirstOrDefault(x => x.Id == Appointment.ClinicSiteId)!.Name;
-        Appointment.Type = AppointmentTypes.FirstOrDefault(x => x.Id == Appointment.AppointmentTypeId)!.Name;
+        AppointmentData.Type = AppointmentTypes.FirstOrDefault(x => x.Id == AppointmentData.AppointmentTypeId)!.Name;
         await Task.Delay(2500);
-        var res = await UnitOfWork.Appointment.SaveAppointment(Id, Appointment);
+        var res = await UnitOfWork.Appointment.SaveAppointment(Id, AppointmentData);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());
@@ -162,5 +185,5 @@ else
 
         _processing = false;
     }
-
+  
 }

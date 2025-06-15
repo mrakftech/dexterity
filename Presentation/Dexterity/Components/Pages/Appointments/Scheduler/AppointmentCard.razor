@@ -52,7 +52,8 @@
 </style>
 
 @code {
-[Parameter] public AppointmentDto Appointment { get; set; }
+    [Parameter] public AppointmentCardDto Appointment { get; set; }
+
     public async Task Print()
     {
         await JsRuntime.InvokeVoidAsync("printInvoke");

@@ -80,7 +80,7 @@
     {
         _loading = true;
         ApplicationState.SelectedAppointment.Id = Guid.Empty;
-        ApplicationState.SelectedAppointment.Appointment = null;
+        ApplicationState.SelectedAppointment.GetAppointment = null;
         ApplicationState.ClearPatient();
         await GetHealthCares();
         await GetPatients();

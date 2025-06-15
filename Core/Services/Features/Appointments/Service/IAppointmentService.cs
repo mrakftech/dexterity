@@ -10,19 +10,19 @@ public interface IAppointmentService
 {
     Task<List<SearchAppointmentDto>> FindAppointments();
     Task<List<AppointmentHistoryDto>> GetAppointmentHistory(Guid patientId);
-    Task<List<AppointmentDto>> GetAllAppointments(DateTime startDate, DateTime endDate);
-    Task<List<AppointmentDto>> GetAllAppointmentsByHcp(Guid hcpId);
-    Task<IResult<AppointmentDto>> GetAppointment(Guid id);
-    Task<IResult> CreateAppointment(AppointmentDto appointment);
-    Task UpdateAppointment(AppointmentDto appointment);
+    Task<List<GetAppointmentDto>> GetAllAppointments(DateTime startDate, DateTime endDate);
+    Task<List<GetAppointmentDto>> GetAllAppointmentsByHcp(Guid hcpId);
+    Task<IResult<GetAppointmentDto>> GetAppointment(Guid id);
+    Task<IResult> CreateAppointment(UpsertAppointmentDto  getAppointment);
+    Task UpdateAppointment(UpsertAppointmentDto  getAppointment);
     Task DeleteAppointment(Guid id);
     Task<IResult> DeleteAppointmentSeries(Guid id);
     Task<IResult> CancelAppointment(Guid appointmentId, int cancelReasonId);
-    Task<IResult> SaveAppointment(Guid id, AppointmentDto appointment);
+    Task<IResult> SaveAppointment(Guid id, UpsertAppointmentDto  getAppointment);
 
     #region Recurring
 
-    Task<IResult> AddRecurrenceEvents(List<AppointmentSlotDto> appointments, AppointmentDto appointment);
+    Task<IResult> AddRecurrenceEvents(List<AppointmentSlotDto> appointments, GetAppointmentDto getAppointment);
     Task<IResult> AddRecurrenceEventsSlot(List<DateTime> recurrencDates, DateTime startDate, Guid hcpId);
     Task<IResult> ClearRecurrenceEventsSlots(Guid hcpId);
     Task<IResult> SelectFreeSlot(Guid id, DateTime startDate);

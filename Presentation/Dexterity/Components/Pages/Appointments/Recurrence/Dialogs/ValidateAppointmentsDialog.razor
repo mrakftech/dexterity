@@ -56,15 +56,15 @@
 
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public List<DateTime> RecurrencDates { get; set; }
-    [Parameter] public AppointmentDto Appointment { get; set; } = new();
+    [Parameter] public GetAppointmentDto GetAppointment { get; set; } = new();
     private List<AppointmentSlotDto> Slots { get; set; } = new();
     private bool _isProcessing;
     private string _error ;
 
     protected override async Task OnInitializedAsync()
     {
-        await UnitOfWork.Appointment.ClearRecurrenceEventsSlots(Appointment.HcpId);
-        await UnitOfWork.Appointment.AddRecurrenceEventsSlot(RecurrencDates, Appointment.StartTime, Appointment.HcpId);
+        await UnitOfWork.Appointment.ClearRecurrenceEventsSlots(GetAppointment.HcpId);
+        await UnitOfWork.Appointment.AddRecurrenceEventsSlot(RecurrencDates, GetAppointment.StartTime, GetAppointment.HcpId);
         await GetAppointmentSlots();
     }
 
@@ -77,12 +77,12 @@
     {
         _isProcessing = true;
         _error = string.Empty;
-        var res = await UnitOfWork.Appointment.AddRecurrenceEvents(Slots, Appointment);
+        var res = await UnitOfWork.Appointment.AddRecurrenceEvents(Slots, GetAppointment);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());
             MudDialog.Close();
-            await UnitOfWork.Appointment.ClearRecurrenceEventsSlots(Appointment.HcpId);
+            await UnitOfWork.Appointment.ClearRecurrenceEventsSlots(GetAppointment.HcpId);
         }
         else
         {
@@ -97,9 +97,9 @@
     {
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
-        parameters.Add("HcpId", Appointment.HcpId);
+        parameters.Add("HcpId", GetAppointment.HcpId);
         parameters.Add("StartDate", Slots.Select(x => x.StartTime).Max().AddDays(1));
-        parameters.Add("Duration", Appointment.Duration);
+        parameters.Add("Duration", GetAppointment.Duration);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<CheckSlot>("", parameters, options);
         var result = await dialogresult.Result;

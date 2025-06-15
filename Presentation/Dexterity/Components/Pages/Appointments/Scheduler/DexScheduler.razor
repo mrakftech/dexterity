@@ -37,17 +37,17 @@ else
                     <MudSpacer/>
                     <MudItem>
                         <MudIconButton Icon="fas fa-refresh" Color="MudColor.Primary"
-                                       OnClick="RefreshAppointments">
+                                       OnClick="@(RefreshAppointments)">
                         </MudIconButton>
-                        <MudIconButton Icon="fas fa-print" Color="MudColor.Primary" OnClick="OnPrint"></MudIconButton>
+                        <MudIconButton Icon="fas fa-print" Color="MudColor.Primary" OnClick="@(OnPrint)"></MudIconButton>
                     </MudItem>
                 </MudStack>
             </MudItem>
             <MudItem md="12" Style="@(ShowSchedule ? string.Empty : "display:none")">
-                <SfSchedule @ref="_scheduleRef" TValue="AppointmentDto" Width="100%" Height="650px"
+                <SfSchedule @ref="_scheduleRef" TValue="GetAppointmentDto" Width="100%" Height="650px"
                             SelectedDate="@SelectedDate"
                             AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true" ShowWeekend="false">
-                    <ScheduleEventSettings TValue="AppointmentDto" AllowDeleting="_allowDeleting"
+                    <ScheduleEventSettings TValue="GetAppointmentDto" AllowDeleting="_allowDeleting"
                                            AllowAdding="_allowAdding" EnableTooltip>
                         <SfDataManager AdaptorInstance="@typeof(AppointmentDataAdaptor)"
                                        Adaptor="Adaptors.CustomAdaptor">
@@ -106,7 +106,7 @@ else
                                         <div class="e-date-time-wrapper e-text-ellipsis">
                                             <div
                                                 class="e-date-time-details e-text-ellipsis">
-                                                @(GetEventDetails((context as AppointmentDto)))
+                                                @(GetEventDetails((context as GetAppointmentDto)))
                                             </div>
                                         </div>
                                     </div>
@@ -114,13 +114,16 @@ else
                                     </div>
                                 </div>
                                 <div class="e-popup-footer">
+                                    @{
+                                        var s = context as GetAppointmentDto;
+                                    }
                                     <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary"
-                                               OnClick="() => CellClicked(((AppointmentDto) context).StartTime)">
+                                               OnClick="() => CellClicked(s.StartTime)">
                                         Create
                                         Appointment
                                     </MudButton>
                                     <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary"
-                                               OnClick="@(e => OnCloseClick(context as AppointmentDto))">
+                                               OnClick="@(e => OnCloseClick(context as GetAppointmentDto))">
                                         Close
                                     </MudButton>
                                 </div>
@@ -132,7 +135,7 @@ else
                             </div>
                         </FooterTemplate>
                     </ScheduleQuickInfoTemplates>
-                    <ScheduleEvents TValue="AppointmentDto" OnPopupOpen="PopupOpen"></ScheduleEvents>
+                    <ScheduleEvents TValue="GetAppointmentDto" OnPopupOpen="PopupOpen"></ScheduleEvents>
                 </SfSchedule>
 
             </MudItem>
@@ -140,7 +143,7 @@ else
                 @if (!ShowSchedule)
                 {
                     <SfGrid DataSource="_gridDataSource" Width="auto" Height="505px">
-                        <GridEvents TValue="AppointmentDto" OnRecordDoubleClick="SelectSchedule"></GridEvents>
+                        <GridEvents TValue="GetAppointmentDto" OnRecordDoubleClick="SelectSchedule"></GridEvents>
                         <GridColumns>
                             <GridColumn Field="Subject" HeaderText="Subject/Patient" Width="120px"></GridColumn>
                             <GridColumn Field="Location" HeaderText="Location" Width="120px"></GridColumn>
@@ -168,9 +171,9 @@ else
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
     [Parameter] public DateTime SelectedDate { get; set; } = DateTime.Now;
 
-    private List<AppointmentDto> _dataSource = new();
-    private List<AppointmentDto> _gridDataSource = new();
-    SfSchedule<AppointmentDto> _scheduleRef;
+    private List<GetAppointmentDto> _dataSource = new();
+    private List<GetAppointmentDto> _gridDataSource = new();
+    SfSchedule<GetAppointmentDto> _scheduleRef;
 
     private string[] _groupData = ["Healthcares"];
     private bool ShowSchedule { get; set; } = true;
@@ -179,7 +182,7 @@ else
     private bool _loading;
 
 
-    List<string> _appointmentStatusList =
+    readonly List<string> _appointmentStatusList =
     [
         $"{@AppointmentConstants.Status.Active}",
         $"{@AppointmentConstants.Status.Cancelled}"
@@ -194,12 +197,12 @@ else
         _loading = false;
     }
 
-    private string GetEventDetails(AppointmentDto data)
+    private string GetEventDetails(GetAppointmentDto data)
     {
         return data.StartTime.ToString("dddd dd, MMMM yyyy", CultureInfo.InvariantCulture) + " (" + data.StartTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "-" + data.EndTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + ")";
     }
 
-    private async Task PopupOpen(PopupOpenEventArgs<AppointmentDto> args)
+    private async Task PopupOpen(PopupOpenEventArgs<GetAppointmentDto> args)
     {
         if (args.Type == PopupType.Editor)
         {
@@ -249,7 +252,7 @@ else
     private async Task CellClicked(DateTime dateTime)
     {
         var parameters = new DialogParameters();
-        
+
         parameters.Add("StartDate", dateTime);
         parameters.Add("PatientList", PatientList);
         parameters.Add("HealthCares", HealthCares);
@@ -262,7 +265,7 @@ else
         }
     }
 
-    private async Task OnCloseClick(AppointmentDto data)
+    private async Task OnCloseClick(GetAppointmentDto data)
     {
         await _scheduleRef.CloseQuickInfoPopupAsync();
     }
@@ -276,7 +279,7 @@ else
     {
         DateTime? startDate = null;
         DateTime? endDate = null;
-        List<WhereFilter> searchObj = new List<WhereFilter>();
+        var searchObj = new List<WhereFilter>();
         if (!string.IsNullOrEmpty(_statusSearchValue))
         {
             searchObj.Add(new WhereFilter() {Field = "Status", Operator = "equal", value = _statusSearchValue, Condition = "or", IgnoreCase = true});
@@ -289,10 +292,10 @@ else
 
         if (searchObj.Count > 0)
         {
-            Query query = new Query().Where(new WhereFilter() {Condition = "and", IsComplex = true, predicates = searchObj});
-            List<AppointmentDto> eventCollections = await _scheduleRef.GetEventsAsync(startDate, endDate, true);
-            object data = await new DataManager() {Json = eventCollections}.ExecuteQuery<AppointmentDto>(query);
-            List<AppointmentDto> resultData = (data as List<AppointmentDto>);
+            var query = new Query().Where(new WhereFilter() {Condition = "and", IsComplex = true, predicates = searchObj});
+            var eventCollections = await _scheduleRef.GetEventsAsync(startDate, endDate, true);
+            var data = await new DataManager() {Json = eventCollections}.ExecuteQuery<GetAppointmentDto>(query);
+            var resultData = (data as List<GetAppointmentDto>);
             _gridDataSource = resultData;
             ShowSchedule = false;
         }
@@ -316,7 +319,7 @@ else
 
     #endregion
 
-    private async Task SelectSchedule(RecordDoubleClickEventArgs<AppointmentDto> obj)
+    private async Task SelectSchedule(RecordDoubleClickEventArgs<GetAppointmentDto> obj)
     {
         var parameters = new DialogParameters
         {
@@ -334,7 +337,6 @@ else
         }
     }
 
-   
 
 }
 

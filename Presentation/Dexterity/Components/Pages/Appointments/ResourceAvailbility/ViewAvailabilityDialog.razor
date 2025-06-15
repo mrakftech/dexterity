@@ -24,18 +24,18 @@
                                         CssClass="mini-calendar"/>
                         </MudItem>
                         <MudItem>
-                            <SfSchedule TValue="AppointmentDto"
+                            <SfSchedule TValue="GetAppointmentDto"
                                         Height="550px"
                                         @bind-CurrentView="@_currentView"
                                         WorkDays="@(new[] {1, 2, 3, 4, 5})"
                                         ShowWeekend="false"
                                         StartHour="09:00"
                                         EndHour="17:00" AllowDragAndDrop="true" SelectedDate="DateValue">
-                                <ScheduleEvents TValue="AppointmentDto"></ScheduleEvents>
+                                <ScheduleEvents TValue="GetAppointmentDto"></ScheduleEvents>
                                 <ScheduleEventSettings AllowAdding="false"
                                                        AllowDeleting="false"
                                                        AllowEditing="false"
-                                                       TValue="AppointmentDto"
+                                                       TValue="GetAppointmentDto"
                                                        DataSource="@_dataSource"></ScheduleEventSettings>
 
                                 <ScheduleTimeScale SlotCount="1" Interval="15"
@@ -65,7 +65,7 @@
     [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
     private bool _processing;
     View _currentView = View.Week;
-    List<AppointmentDto> _dataSource = new();
+    List<GetAppointmentDto> _dataSource = new();
     private HealthcareDto _selectedhealthcareDto = new();
     private DateTime DateValue { get; set; } = DateTime.Now;
 
