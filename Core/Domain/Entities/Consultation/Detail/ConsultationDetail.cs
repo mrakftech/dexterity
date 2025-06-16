@@ -6,7 +6,7 @@ using Domain.Entities.UserAccounts;
 
 namespace Domain.Entities.Consultation.Detail;
 
-public class ConsultationDetail :  IBaseId
+public class ConsultationDetail : IBaseId
 {
     public Guid Id { get; set; }
     public DateTime ConsultationDate { get; set; }
@@ -16,6 +16,8 @@ public class ConsultationDetail :  IBaseId
 
     public ClinicSite ClinicSite { get; set; }
     public Guid ClinicSiteId { get; set; }
+    
+    public int ClinicId { get; set; }
 
     public User Hcp { get; set; }
     public Guid HcpId { get; set; }

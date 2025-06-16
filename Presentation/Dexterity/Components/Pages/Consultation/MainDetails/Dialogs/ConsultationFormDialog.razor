@@ -1,0 +1,102 @@
+﻿@using Domain.Entities.UserAccounts
+@using Services.Features.Settings.Dtos
+@using Services.Features.Consultation.Dto
+<DexDialog>
+    <DialogTitle>
+        Begin Consultation
+    </DialogTitle>
+    <Content>
+        <DexForm Model="ConsultationDto" OnValidSubmit="BeginConsultation">
+            <Fields>
+                <FormItem Field="@nameof(SaveConsultationDto.PatientName)" IsEnabled="false" LabelText="Patient Name"/>
+                <FormItem Field="@nameof(SaveConsultationDto.DoctorName)" IsEnabled="false" LabelText="HCP"/>
+                <FormItem Field="@nameof(SaveConsultationDto.ConsultationDate)" IsEnabled="false"
+                          EditorType="FormEditorType.DateTimePicker" LabelText="Date"/>
+                <FormItem Field="@nameof(SaveConsultationDto.ConsultationClass)" IsEnabled="false" LabelText="Class"/>
+                <FormItem Field="@nameof(SaveConsultationDto.ConsultationType)" IsEnabled="false" LabelText="Type"/>
+                <FormItem Field="@nameof(SaveConsultationDto.ClinicId)" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Clinics:</label>
+                        <SfDropDownList TValue="int" TItem="UserClinic" Placeholder="Select Clinic"
+                                        DataSource="@Clinics" @bind-Value="@ConsultationDto.ClinicId">
+                            <DropDownListFieldSettings Value="ClinicId"
+                                                       Text="Clinic.Name"></DropDownListFieldSettings>
+                            <DropDownListEvents TValue="int" TItem="UserClinic"
+                                                ValueChange="OnClinicChanged"></DropDownListEvents>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(SaveConsultationDto.ClinicSiteId)" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Site:</label>
+                        <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site"
+                                        DataSource="@ClinicSites" @bind-Value="@ConsultationDto.ClinicSiteId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="_loading"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDiloag { get; set; }
+    [Parameter] public Guid Id { get; set; }
+
+    private SaveConsultationDto ConsultationDto { get; set; } = new();
+    private List<ClinicSiteDto> ClinicSites { get; set; } = [];
+    private List<UserClinic> Clinics { get; set; } = [];
+
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetClinics();
+        await GetClinicSites(ApplicationState.GetSelectedClinicId());
+        if (Id != Guid.Empty)
+        {
+            ConsultationDto = await UnitOfWork.Consultation.GetConsultationEditDetail(Id);
+        }
+    }
+
+    private async Task GetClinicSites(int clinicId)
+    {
+        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(clinicId);
+    }
+
+    private async Task BeginConsultation()
+    {
+        _loading = true;
+        var res = await UnitOfWork.Consultation.SaveConsultation(Id, ConsultationDto);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDiloag.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+
+        _loading = false;
+    }
+
+    private async Task GetClinics()
+    {
+        Clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.Auth.CurrentUser.UserId);
+    }
+
+    private async Task OnClinicChanged(ChangeEventArgs<int, UserClinic> args)
+    {
+        var clinic = args.ItemData;
+        if (clinic is not null)
+        {
+            await GetClinicSites(clinic.ClinicId);
+        }
+    }
+
+}

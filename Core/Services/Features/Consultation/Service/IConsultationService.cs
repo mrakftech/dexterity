@@ -18,10 +18,9 @@ namespace Services.Features.Consultation.Service;
 
 public interface IConsultationService
 {
-    Task<IResult<Guid>> BeginConsultation(BeginConsultationDto request);
-    Task<IResult> EditConsultation(Guid id, EditConsultationDto request);
-    Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId);
-    Task<EditConsultationDto> GetConsultationDetail(Guid id);
+    Task<IResult<Guid>> SaveConsultation(Guid id, SaveConsultationDto request);
+    Task<List<GetConsultationDetailDto>> GetConsultationDetailsByPatient(Guid patientId);
+    Task<SaveConsultationDto> GetConsultationEditDetail(Guid id);
     Task<IResult> FinishConsultation(Guid id);
 
     #region Baseline Details
@@ -124,10 +123,10 @@ public interface IConsultationService
     Task<PatientCustomForm> GetPatientCustomForm(Guid id);
 
     Task<IResult> SavePatientCustomForm(Guid id, PatientCustomForm request);
-    
+
     Task<IResult> DeletePatientCustomForm(Guid id);
 
-
     #endregion
+
     #endregion
 }

@@ -290,7 +290,7 @@
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
-        var dialogresult = await DialogService.ShowAsync<EditConsultationDialog>("", parameters, options);
+        var dialogresult = await DialogService.ShowAsync<ConsultationFormDialog>("", parameters, options);
         var result = await dialogresult.Result;
         if (!result.Canceled)
         {

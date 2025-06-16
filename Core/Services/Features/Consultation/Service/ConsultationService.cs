@@ -41,7 +41,7 @@ public class ConsultationService(
 {
     #region Consultation Details
 
-    public async Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId)
+    public async Task<List<GetConsultationDetailDto>> GetConsultationDetailsByPatient(Guid patientId)
     {
         var list = new List<GetConsultationDetailDto>();
         var consultations = await context.ConsultationDetails
@@ -68,22 +68,45 @@ public class ConsultationService(
         return list;
     }
 
-    public async Task<IResult<Guid>> BeginConsultation(BeginConsultationDto request)
+    public async Task<IResult<Guid>> SaveConsultation(Guid id,SaveConsultationDto request)
     {
         try
         {
-            var consultation = new ConsultationDetail
+            if (id == Guid.Empty)
             {
-                ConsultationDate = request.ConsultationDate,
-                ClinicSiteId = request.ClinicSiteId,
-                ConsultationClass = request.ConsultationClass,
-                PatientId = ApplicationState.GetSelectPatientId(),
-                HcpId = ApplicationState.Auth.CurrentUser.UserId,
-                ConsultationType = request.ConsultationType
-            };
-            context.ConsultationDetails.Add(consultation);
-            await context.SaveChangesAsync();
-            return await Result<Guid>.SuccessAsync(message: "Consultation has been added.", data: consultation.Id);
+                var consultation = new ConsultationDetail
+                {
+                    ConsultationDate = request.ConsultationDate,
+                    ClinicSiteId = request.ClinicSiteId,
+                    ClinicId = request.ClinicId,
+                    ConsultationClass = request.ConsultationClass,
+                    PatientId = ApplicationState.GetSelectPatientId(),
+                    HcpId = ApplicationState.Auth.CurrentUser.UserId,
+                    ConsultationType = request.ConsultationType
+                };
+                context.ConsultationDetails.Add(consultation);  
+                await context.SaveChangesAsync();
+                return await Result<Guid>.SuccessAsync(message: "Consultation has been added.", data: consultation.Id);
+            }
+            else
+            {
+                var consultation = await context.ConsultationDetails.FirstOrDefaultAsync(x => x.Id == id);
+                if (consultation is null)
+                    return await Result<Guid>.FailAsync("Consultation not found");
+
+                consultation.ConsultationDate = request.ConsultationDate;
+                consultation.ConsultationClass = request.ConsultationClass;
+                consultation.Pomr = request.Pomr;
+                consultation.ConsultationType = request.ConsultationType;
+                consultation.ClinicSiteId = request.ClinicSiteId;
+                consultation.ClinicId = request.ClinicId;
+
+                context.ConsultationDetails.Update(consultation);
+                await context.SaveChangesAsync();
+                return await Result<Guid>.SuccessAsync("Consultation has been saved."); 
+            }
+           
+           
         }
         catch (Exception e)
         {
@@ -91,33 +114,17 @@ public class ConsultationService(
         }
     }
 
-    public async Task<IResult> EditConsultation(Guid id, EditConsultationDto request)
-    {
-        var consultation = await context.ConsultationDetails.FirstOrDefaultAsync(x => x.Id == id);
-        if (consultation is null)
-            return await Result.FailAsync("Consultation not found");
-
-        consultation.ConsultationDate = request.ConsultationDate;
-        consultation.ConsultationClass = request.ConsultationClass;
-        consultation.Pomr = request.Pomr;
-        consultation.ConsultationType = request.ConsultationType;
-        consultation.ClinicSiteId = request.ClinicSiteId;
-
-        context.ConsultationDetails.Update(consultation);
-        await context.SaveChangesAsync();
-        return await Result.SuccessAsync("Consultation has been saved.");
-    }
-
-    public async Task<EditConsultationDto> GetConsultationDetail(Guid id)
+    public async Task<SaveConsultationDto> GetConsultationEditDetail(Guid id)
     {
         var consultation = await context.ConsultationDetails.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (consultation is null)
-            return new EditConsultationDto();
+            return new SaveConsultationDto();
 
-        return new EditConsultationDto()
+        return new SaveConsultationDto()
         {
             ConsultationDate = consultation.ConsultationDate,
             ClinicSiteId = consultation.ClinicSiteId,
+            ClinicId = consultation.ClinicId,
             ConsultationClass = consultation.ConsultationClass,
             ConsultationType = consultation.ConsultationType,
             Pomr = consultation.Pomr,

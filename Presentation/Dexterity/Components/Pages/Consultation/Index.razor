@@ -194,8 +194,7 @@
 
     private async Task OpenPatientSummaryModal()
     {
-        var parameters = new DialogParameters();
-        parameters.Add("PatientId", ApplicationState.GetSelectPatientId());
+        var parameters = new DialogParameters {{"PatientId", ApplicationState.GetSelectPatientId()}};
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<PatientSummary>("", parameters, options);
     }
@@ -206,14 +205,14 @@
 
     private async Task GetConsultations()
     {
-        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.GetSelectPatientId());
+        Consultations = await UnitOfWork.Consultation.GetConsultationDetailsByPatient(ApplicationState.GetSelectPatientId());
     }
 
     private async Task OpenBeginConsultationDialog()
     {
         var parameters = new DialogParameters();
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
-        var dialogresult = await DialogService.ShowAsync<BeginConsultationDialog>("", parameters, options);
+        var dialogresult = await DialogService.ShowAsync<ConsultationFormDialog>("", parameters, options);
         var result = await dialogresult.Result;
         if (!result.Canceled)
         {
@@ -223,10 +222,9 @@
 
     private async Task EditBeginConsultationDialog(Guid id)
     {
-        var parameters = new DialogParameters();
-        parameters.Add("Id", id);
+        var parameters = new DialogParameters {{"Id", id}};
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
-        var dialogresult = await DialogService.ShowAsync<EditConsultationDialog>("", parameters, options);
+        var dialogresult = await DialogService.ShowAsync<ConsultationFormDialog>("", parameters, options);
         var result = await dialogresult.Result;
         if (!result.Canceled)
         {
@@ -236,8 +234,7 @@
 
     private async Task FinishConsultationDialog(Guid id)
     {
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", "Are you sure you want to complete this Consultation?");
+        var parameters = new DialogParameters {{"ContentText", "Are you sure you want to complete this Consultation?"}};
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
         var result = await dialogresult.Result;
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))

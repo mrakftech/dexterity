@@ -8,16 +8,16 @@
         <MudItem>
             <DexForm Model="ConsultationDto" OnValidSubmit="StartConsultation">
                 <Fields>
-                    <FormItem Field="@nameof(BeginConsultationDto.PatientName)" IsEnabled="false"
+                    <FormItem Field="@nameof(SaveConsultationDto.PatientName)" IsEnabled="false"
                               LabelText="Patient Name"/>
-                    <FormItem Field="@nameof(BeginConsultationDto.DoctorName)" IsEnabled="false" LabelText="HCP"/>
-                    <FormItem Field="@nameof(BeginConsultationDto.ConsultationDate)" IsEnabled="false"
+                    <FormItem Field="@nameof(SaveConsultationDto.DoctorName)" IsEnabled="false" LabelText="HCP"/>
+                    <FormItem Field="@nameof(SaveConsultationDto.ConsultationDate)" IsEnabled="false"
                               EditorType="FormEditorType.DateTimePicker" LabelText="Date"/>
-                    <FormItem Field="@nameof(BeginConsultationDto.ConsultationClass)" IsEnabled="false"
+                    <FormItem Field="@nameof(SaveConsultationDto.ConsultationClass)" IsEnabled="false"
                               LabelText="Class"/>
-                    <FormItem Field="@nameof(BeginConsultationDto.ConsultationType)" IsEnabled="false"
+                    <FormItem Field="@nameof(SaveConsultationDto.ConsultationType)" IsEnabled="false"
                               LabelText="Type"/>
-                    <FormItem Field="@nameof(BeginConsultationDto.ClinicSiteId)" ColumnSpan="1">
+                    <FormItem Field="@nameof(SaveConsultationDto.ClinicSiteId)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Site:</label>
                             <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site"
@@ -39,14 +39,14 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     [Parameter] public Guid AppointmentId { get; set; }
     private bool _processing;
-    private BeginConsultationDto ConsultationDto { get; set; } = new();
+    private SaveConsultationDto ConsultationDto { get; set; } = new();
     private List<ClinicSiteDto> ClinicSites { get; set; } = new();
 
     private async Task StartConsultation()
     {
         _processing = true;
 
-        var r = await UnitOfWork.Consultation.BeginConsultation(ConsultationDto);
+        var r = await UnitOfWork.Consultation.SaveConsultation(Guid.Empty, ConsultationDto);
         if (r.Succeeded)
         {
             var res = await UnitOfWork.WaitingRoom
