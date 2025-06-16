@@ -14,11 +14,11 @@
                     <DexMenuItem Text="Contacts" Icon="fas fa-address-book" Click="@(() => ClickChangedTab(1))"/>
                     <DexMenuItem Text="Medical Summary" Icon="fas fa-receipt" Click="@(() => ClickChangedTab(2))"/>
                     <DexMenuItem Text="Medical History" Icon="fas fa-files-medical"
-                                 Click="@(() => ClickChangedTab(3))"/>
+                    Click="@(() => ClickChangedTab(3))"/>
                     <DexMenuItem Text="Baseline Details" Icon="fas fa-shield-heart"
-                                 Click="@(() => ClickChangedTab(4))"/>
+                    Click="@(() => ClickChangedTab(4))"/>
                     <DexMenuItem Text="Visit History" Icon="fas fa-rectangle-history"
-                                 Click="@(() => ClickChangedTab(5))"/>
+                    Click="@(() => ClickChangedTab(5))"/>
                     <DexMenuItem Text="SMS History" Icon="fas fa-message" Click="@(() => ClickChangedTab(6))"/>
                     <DexMenuItem Text="Patient Tasks" Icon="fas fa-bars-progress" Click="@(() => ClickChangedTab(7))"/>
                 </NavigationItems>
@@ -73,7 +73,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await GetPateintSummary(ApplicationState.GetSelectPatientId());
+        var pid = ApplicationState.GetSelectPatientId();
+        await GetPateintSummary(pid);
         _tabs.ActivatePanel(_tabIndex);
     }
 

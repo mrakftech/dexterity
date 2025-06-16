@@ -431,6 +431,8 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.FullName, x => x.Person.FullName)
                     .RuleFor(x => x.DateOfBirth,
                         x => x.Date.Between(new DateTime(1994, 1, 1), new DateTime(2025, 1, 1)))
+                    .RuleFor(x => x.RegistrationDate,
+                        x => x.Date.Between(new DateTime(1994, 1, 1), new DateTime(2025, 1, 1)))
                     .RuleFor(x => x.Gender, x => x.Person.Gender.ToString())
                     .RuleFor(x => x.Address, x => address)
                     .RuleFor(x => x.MobilePhone, x => util.Format(num, PhoneNumberFormat.E164))

@@ -7,7 +7,6 @@ namespace Services.State;
 
 public static class ApplicationState
 {
-    
     public static class SelectedAppointment
     {
         public static Guid Id { get; set; }
@@ -19,8 +18,6 @@ public static class ApplicationState
         public static Guid Id { get; set; } = Guid.Empty;
         public static string Name { get; set; }
         public static PatientSummaryDto Summary { get; set; }
-
-      
     }
 
     public static class SelectedConsultation
@@ -47,35 +44,31 @@ public static class ApplicationState
         public static string MeetingName { get; set; }
         public static string MeetingLink { get; set; }
     }
-    
-    
+
+
     public static int GetSelectedClinicId()
     {
-       return ApplicationState.Auth.CurrentUser.ClinicId;
+        return Auth.CurrentUser.ClinicId;
     }
-
     public static Guid GetUserCurrentId()
     {
-        return ApplicationState.Auth.CurrentUser.UserId;
+        return Auth.CurrentUser.UserId;
     }
-
-
-
-    public static void SetPatientId(Guid patientId,string name=null)
+    
+    
+    
+    
+    public static void SetPatientId(Guid patientId, string name = null)
     {
         Patient.Id = patientId;
         Patient.Name = name ?? string.Empty;
     }
-    
-    public static void SetPatient(Guid patientId,PatientSummaryDto summary)
+    public static void SetPatient(Guid patientId, PatientSummaryDto summary)
     {
         Patient.Id = patientId;
         Patient.Name = summary.Name;
-        Patient. Summary = summary;
+        Patient.Summary = summary;
     }
-
-      
-        
     public static Guid GetSelectPatientId()
     {
         return Patient.Id;
@@ -84,8 +77,6 @@ public static class ApplicationState
     {
         return Patient.Name;
     }
- 
-    
     public static void ClearPatient()
     {
         Patient.Id = Guid.Empty;
