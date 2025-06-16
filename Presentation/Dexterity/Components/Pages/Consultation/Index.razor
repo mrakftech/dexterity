@@ -152,7 +152,7 @@
     {
         ClickChangedTab(0);
         _loading = true;
-        if (ApplicationState.GetSelectPatientId() !=Guid.Empty)
+        if (ApplicationState.GetSelectPatientId() != Guid.Empty)
         {
             _reminderCount = await UnitOfWork.Consultation.GetActiveRemindersCount();
             _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.GetSelectPatientId());
@@ -243,7 +243,15 @@
             if (userRes.Succeeded)
             {
                 var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
-                await DialogService.ShowAsync<FinishConsultationDialog>("", new DialogParameters(), options);
+                var finishRes = await DialogService.ShowAsync<FinishConsultationDialog>("", new DialogParameters(), options);
+                var finishResDialog = await finishRes.Result;
+
+                if (finishResDialog.Canceled)
+                {
+                   _isConsultationFinish=true;
+                StateHasChanged();
+                    
+                }
             }
         }
     }
@@ -373,14 +381,16 @@
     }
 
     #endregion
-    
+
     #region Prescription
+
     private async Task NewPrescriptionDialog()
     {
         var parameters = new DialogParameters();
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<PrescriptionFormDialog>("", parameters, options);
     }
+
     #endregion
 
 
