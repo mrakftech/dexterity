@@ -113,7 +113,8 @@ public interface IConsultationService
 
     #region Sketches
 
-    Task<IResult> SavePatientSketch(Guid id, string sketch);
+    Task<IResult> SavePatientSketch(Guid id, string sketch,Guid sketchCategoryId);
+    Task<List<PatientSketch>> GetPatientSketches(Guid sketchCategoryId);
 
     #endregion
 

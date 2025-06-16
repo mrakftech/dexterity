@@ -9,4 +9,5 @@ public class PatientSketch : IBaseId
     public string Sketch { get; set; }
     public Patient Patient { get; set; }
     public Guid PatientId { get; set; }
+    public Guid SketchCategoryId { get; set; }
 }

@@ -68,7 +68,7 @@ public class ConsultationService(
         return list;
     }
 
-    public async Task<IResult<Guid>> SaveConsultation(Guid id,SaveConsultationDto request)
+    public async Task<IResult<Guid>> SaveConsultation(Guid id, SaveConsultationDto request)
     {
         try
         {
@@ -84,7 +84,7 @@ public class ConsultationService(
                     HcpId = ApplicationState.Auth.CurrentUser.UserId,
                     ConsultationType = request.ConsultationType
                 };
-                context.ConsultationDetails.Add(consultation);  
+                context.ConsultationDetails.Add(consultation);
                 await context.SaveChangesAsync();
                 return await Result<Guid>.SuccessAsync(message: "Consultation has been added.", data: consultation.Id);
             }
@@ -103,10 +103,8 @@ public class ConsultationService(
 
                 context.ConsultationDetails.Update(consultation);
                 await context.SaveChangesAsync();
-                return await Result<Guid>.SuccessAsync("Consultation has been saved."); 
+                return await Result<Guid>.SuccessAsync("Consultation has been saved.");
             }
-           
-           
         }
         catch (Exception e)
         {
@@ -1146,7 +1144,7 @@ public class ConsultationService(
         return await Result.SuccessAsync("Scanned Document has been saved.");
     }
 
-    public async Task<IResult> SavePatientSketch(Guid id, string sketch)
+    public async Task<IResult> SavePatientSketch(Guid id, string sketch, Guid sketchCategoryId)
     {
         if (id == Guid.Empty)
         {
@@ -1154,13 +1152,21 @@ public class ConsultationService(
             {
                 Id = Guid.NewGuid(),
                 PatientId = ApplicationState.GetSelectPatientId(),
-                Sketch = sketch
+                Sketch = sketch,
+                SketchCategoryId = sketchCategoryId
             };
             await context.PatientSketches.AddAsync(patientSketch);
             await context.SaveChangesAsync();
         }
 
         return await Result.SuccessAsync("Sketch has been saved.");
+    }
+
+    public async Task<List<PatientSketch>> GetPatientSketches(Guid sketchCategoryId)
+    {
+        return await context.PatientSketches
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId() && x.SketchCategoryId == sketchCategoryId)
+            .ToListAsync();
     }
 
     #endregion

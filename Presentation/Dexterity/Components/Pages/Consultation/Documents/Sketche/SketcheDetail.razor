@@ -1,9 +1,11 @@
-﻿@using Domain.Entities.Settings.Templates
+﻿@using Domain.Entities.Consultation.Documents
+@using Domain.Entities.Settings.Templates
 @using Syncfusion.Blazor.ImageEditor
 <div class="control-section m-2">
     <MudStack Row>
         <SfButton OnClick="ClearImageAsync">New</SfButton>
-        <SfDropDownList TItem="SketchCategory" TValue="string" PopupHeight="230px" Placeholder="e.g. Arm, Legs" DataSource="@_sketchCategories">
+        <SfDropDownList TItem="SketchCategory" TValue="string" PopupHeight="230px" Placeholder="e.g. Arm, Legs"
+                        DataSource="@_sketchCategories">
             <DropDownListEvents TItem="SketchCategory" TValue="string" ValueChange="OnChange"/>
             <DropDownListFieldSettings Text="Name" Value="Id"/>
         </SfDropDownList>
@@ -23,14 +25,14 @@
             @if (!_isProcessing)
             {
                 <SfGrid DataSource="_sketches" AllowPaging="false" Height="500">
-                    <GridEvents TValue="Sketch" RowSelected="SelectSketch"></GridEvents>
+                    <GridEvents TValue="PatientSketch" RowSelected="SelectSketch"></GridEvents>
                     <GridColumns>
-                        <GridColumn Field="@nameof(Sketch.Image)">
+                        <GridColumn Field="@nameof(PatientSketch.Sketch)">
                             <Template>
                                 @{
-                                    var sketch = (context as Sketch);
+                                    var patientSketch = (context as PatientSketch);
                                     <div class="image">
-                                        <MudImage Src="@sketch!.Image" Fluid="true"></MudImage>
+                                        <MudImage Src="@patientSketch!.Sketch" Fluid="true"></MudImage>
                                     </div>
                                 }
                             </Template>
@@ -48,8 +50,8 @@
 
 @code {
     SfImageEditor _imageEditor;
-    private List<SketchCategory> _sketchCategories = new();
-    private List<Sketch> _sketches = new();
+    private List<SketchCategory> _sketchCategories = [];
+    private List<PatientSketch> _sketches = [];
     private bool _isProcessing;
     Guid _categoryId;
 
@@ -63,9 +65,9 @@
         _sketchCategories = await UnitOfWork.Setting.GetSketchCategories();
     }
 
-    private async Task GetSketches()
+    private async Task GetSketches(Guid categoryId)
     {
-        _sketches = await UnitOfWork.Setting.GetSketcheByCategory(_categoryId);
+        _sketches = await UnitOfWork.Consultation.GetPatientSketches(categoryId);
     }
 
     private List<ImageEditorToolbarItemModel> _tools =
@@ -86,7 +88,7 @@
         var imageData = await _imageEditor.GetImageDataAsync();
         var base64String = Convert.ToBase64String(imageData);
         var image = "data:image/png;base64," + base64String;
-        var res = await UnitOfWork.Consultation.SavePatientSketch(Guid.Empty, image);
+        var res = await UnitOfWork.Consultation.SavePatientSketch(Guid.Empty, image, _categoryId);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());
@@ -98,11 +100,11 @@
         }
     }
 
-    private void SelectSketch(RowSelectEventArgs<Sketch> args)
+    private void SelectSketch(RowSelectEventArgs<PatientSketch> args)
     {
         if (args.Data is not null)
         {
-            _imageEditor.OpenAsync(args.Data.Image);
+            _imageEditor.OpenAsync(args.Data.Sketch);
         }
         else
         {
@@ -115,7 +117,7 @@
         if (args.ItemData is not null)
         {
             _categoryId = args.ItemData.Id;
-            await GetSketches();
+            await GetSketches(_categoryId);
         }
         else
         {
