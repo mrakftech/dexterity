@@ -64,7 +64,7 @@ public class PatientService(
                 var patients = await context.Patients
                     .Where(x => x.IsDeleted == false && x.ClinicId == clinicId)
                     .ToListAsync();
-                patientsList= mapper.Map<List<PatientListDto>>(patients);
+                patientsList.AddRange(mapper.Map<List<PatientListDto>>(patients)); 
                 
             }
             return patientsList;    

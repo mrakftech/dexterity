@@ -419,7 +419,7 @@ public class DatabaseSeeder(
             {
                 var address = new PatientAddress() {AddressLine1 = "Testing London"};
                 var medical = new MedicalCardDetail() {GmsStatus = "Active", GmsPatientNumber = "M567890A"};
-                var clinicId = context.Clinics.FirstOrDefault(x => x.Name == "Clinic")!.Id;
+                var clinicIds = context.Clinics.Select(x => x.Id).ToList();
                 var hcpId = context.Users.FirstOrDefault(x => x.FirstName == "User")!.Id;
                 var util = PhoneNumberUtil.GetInstance();
                 var num = util.GetExampleNumber("US");
@@ -437,13 +437,13 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.Address, x => address)
                     .RuleFor(x => x.MobilePhone, x => util.Format(num, PhoneNumberFormat.E164))
                     .RuleFor(x => x.Email, x => x.Person.Email)
-                    .RuleFor(x => x.ClinicId, clinicId)
+                    .RuleFor(x => x.ClinicId, x => x.PickRandom(clinicIds))
                     .RuleFor(x => x.HcpId, hcpId)
                     .RuleFor(x => x.MedicalCardDetails, medical)
                     .RuleFor(x => x.UniqueNumber, CryptographyHelper.GetUniqueKey(8))
                     .RuleFor(x => x.MedicalRecordNumber, CryptographyHelper.GenerateMrNumber())
-                    .RuleFor(x => x.Status, PatientStatus.Active.ToString())
-                    .RuleFor(x => x.PatientType, PatientType.Private.ToString())
+                    .RuleFor(x => x.Status, nameof(PatientStatus.Active))
+                    .RuleFor(x => x.PatientType, nameof(PatientType.Private))
                     .RuleFor(x => x.IhiNumber, CryptographyHelper.GetUniqueKey(17))
                     .RuleFor(x => x.CreatedBy, Guid.NewGuid());
                 var patients = fakePatients.Generate(ApplicationConstants.SeedFakePatientsCount);
@@ -497,12 +497,25 @@ public class DatabaseSeeder(
             await using var context = await contextFactory.CreateDbContextAsync();
             if (context.Clinics.Any())
                 return;
-            var c = new Clinic()
+            var clicnicList = new List<Clinic>()
             {
-                Address = "Not set",
-                Name = "Clinic",
+                new()
+                {
+                    Address = "Not set",
+                    Name = "Clinic 1",
+                },
+                new()
+                {
+                    Address = "Not set",
+                    Name = "Clinic 2",
+                },
+                new()
+                {
+                    Address = "Not set",
+                    Name = "Clinic 3",
+                }
             };
-            context.Clinics.Add(c);
+            context.Clinics.AddRange(clicnicList);
             await context.SaveChangesAsync();
         }).GetAwaiter().GetResult();
     }
