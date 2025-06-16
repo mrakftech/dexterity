@@ -106,7 +106,7 @@ else
                                         <div class="e-date-time-wrapper e-text-ellipsis">
                                             <div
                                                 class="e-date-time-details e-text-ellipsis">
-                                                @(GetEventDetails((context as GetAppointmentDto)))
+                                                @GetEventDetails((context as GetAppointmentDto))
                                             </div>
                                         </div>
                                     </div>
@@ -118,7 +118,7 @@ else
                                         var s = context as GetAppointmentDto;
                                     }
                                     <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary"
-                                               OnClick="() => CellClicked(s.StartTime)">
+                                               OnClick="@(() => CellClicked(s.StartTime))">
                                         Create
                                         Appointment
                                     </MudButton>
@@ -175,7 +175,7 @@ else
     private List<GetAppointmentDto> _gridDataSource = new();
     SfSchedule<GetAppointmentDto> _scheduleRef;
 
-    private string[] _groupData = ["Healthcares"];
+    private readonly string[] _groupData = ["Healthcares"];
     private bool ShowSchedule { get; set; } = true;
     private bool _allowAdding;
     private bool _allowDeleting;
@@ -191,13 +191,13 @@ else
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await Task.Delay(1500);
+        await Task.Delay(500);
         _allowAdding = UnitOfWork.User.CheckPermission(PermissionConstants.Create);
         _allowDeleting = UnitOfWork.User.CheckPermission(PermissionConstants.Delete);
         _loading = false;
     }
 
-    private string GetEventDetails(GetAppointmentDto data)
+    private static string GetEventDetails(GetAppointmentDto data)
     {
         return data.StartTime.ToString("dddd dd, MMMM yyyy", CultureInfo.InvariantCulture) + " (" + data.StartTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "-" + data.EndTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + ")";
     }
@@ -251,11 +251,13 @@ else
 
     private async Task CellClicked(DateTime dateTime)
     {
-        var parameters = new DialogParameters();
+        var parameters = new DialogParameters
+        {
+            {"StartDate", dateTime},
+            {"PatientList", PatientList},
+            {"HealthCares", HealthCares}
+        };
 
-        parameters.Add("StartDate", dateTime);
-        parameters.Add("PatientList", PatientList);
-        parameters.Add("HealthCares", HealthCares);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;
@@ -326,9 +328,9 @@ else
             {"Id", obj.RowData.Id},
             {"StartDate", obj.RowData.StartTime},
             {"PatientList", PatientList},
-            {"HealthCares", HealthCares}
+            {"HealthCares", HealthCares},
+            {"HcpId", obj.RowData.HcpId}
         };
-        parameters.Add("HcpId", obj.RowData.HcpId);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;

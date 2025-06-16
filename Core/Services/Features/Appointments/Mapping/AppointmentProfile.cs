@@ -13,8 +13,12 @@ public class AppointmentProfile : Profile
             .ForMember(x => x.PatientName, c => c.MapFrom(m => m.Patient.FullName))
             .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.Hcp.FullName))
             .ReverseMap();
-        CreateMap<UpsertAppointmentDto, GetAppointmentDto>()
+
+        CreateMap<Appointment, UpsertAppointmentDto>()
+            .ForMember(x => x.PatientName, c => c.MapFrom(m => m.Patient.FullName))
+            .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.Hcp.FullName))
             .ReverseMap();
+
         CreateMap<Appointment, SearchAppointmentDto>()
             .ForMember(x => x.PatientName, c => c.MapFrom(m => m.Patient.FullName))
             .ForMember(x => x.DateOfBirth, c => c.MapFrom(m => m.Patient.DateOfBirth))
@@ -25,10 +29,10 @@ public class AppointmentProfile : Profile
             .ForMember(x => x.Hcp, c => c.MapFrom(m => m.Hcp.FullName))
             .ForMember(x => x.Type, c => c.MapFrom(m => m.AppointmentType.Name))
             .ReverseMap();
-        
+
         CreateMap<AppointmentSlotDto, AppointmentSlot>()
             .ReverseMap();
-        
+
         CreateMap<AvailabilityException, AvailabilityExceptionDto>()
             .ReverseMap();
     }

@@ -13,6 +13,7 @@ public interface IAppointmentService
     Task<List<GetAppointmentDto>> GetAllAppointments(DateTime startDate, DateTime endDate);
     Task<List<GetAppointmentDto>> GetAllAppointmentsByHcp(Guid hcpId);
     Task<IResult<GetAppointmentDto>> GetAppointment(Guid id);
+    Task<IResult<UpsertAppointmentDto>> GetEditAppointment(Guid id);
     Task<IResult> CreateAppointment(UpsertAppointmentDto  getAppointment);
     Task UpdateAppointment(UpsertAppointmentDto  getAppointment);
     Task DeleteAppointment(Guid id);

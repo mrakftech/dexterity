@@ -170,7 +170,6 @@ else
     private async Task SaveAppointment()
     {
         _processing = true;
-        AppointmentData.Type = AppointmentTypes.FirstOrDefault(x => x.Id == AppointmentData.AppointmentTypeId)!.Name;
         await Task.Delay(2500);
         var res = await UnitOfWork.Appointment.SaveAppointment(Id, AppointmentData);
         if (res.Succeeded)

@@ -67,6 +67,21 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         return await Result<GetAppointmentDto>.SuccessAsync(data);
     }
 
+    public async Task<IResult<UpsertAppointmentDto>> GetEditAppointment(Guid id)
+    {
+        var appointment = await context.Appointments
+            .Include(x => x.Patient)
+            .Include(x => x.Hcp)
+            .Include(x => x.AppointmentType)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        
+        if (appointment == null)
+            return await Result<UpsertAppointmentDto>.FailAsync("Appointment not found");
+        
+        var data = mapper.Map<UpsertAppointmentDto>(appointment);
+        return await Result<UpsertAppointmentDto>.SuccessAsync(data);
+    }
+
     public async Task<List<SearchAppointmentDto>> FindAppointments()
     {
         var data = await context.Appointments
@@ -96,6 +111,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         {
             if (id == Guid.Empty)
             {
+                
                 if (await IsSlotAvaiable(request.StartTime, request.HcpId))
                 {
                     return await Result.FailAsync("Slot not avaiable.");
@@ -103,7 +119,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
 
                 var appointment = new Appointment
                 {
-                    Subject = $"{request.PatientName}, {request.Type}",
+                    Subject = $"{request.PatientName}, {GetAppointmentTypeName(request.AppointmentTypeId)}",
                     CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
                     ClinicSiteId = request.ClinicSiteId,
                     ClinicId = request.ClinicId,
@@ -136,7 +152,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
 
                 if (appointment == null) return await Result.FailAsync("Appointment not found.");
 
-                appointment.Subject = $"{request.PatientName}, {request.Type}";
+                appointment.Subject = $"{request.PatientName}, {GetAppointmentTypeName(request.AppointmentTypeId)}";
                 appointment.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
                 appointment.ModifiedDate = DateTime.Now;
                 appointment.StartTime = request.StartTime;
@@ -619,6 +635,11 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         return $"{clinicName} - {clinicSiteName}";
     }
 
+    private string GetAppointmentTypeName(Guid appointmentTypeId)
+    {
+        var appointmentTypeName =  context.AppointmentTypes.FirstOrDefault(x=>x.Id==appointmentTypeId)?.Name;
+        return appointmentTypeName;
+    }
     private static List<DateTime> BreakInto15MinIntervals(DateTime startDate, DateTime endDate)
     {
         var intervals = new List<DateTime>();

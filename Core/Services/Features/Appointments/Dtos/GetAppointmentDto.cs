@@ -52,9 +52,6 @@ public class UpsertAppointmentDto
     public DateTime EndTime { get; set; }
     public string Description { get; set; }
     public string Location { get; set; }
-    public bool IsAllDay { get; set; }
-    public bool IsReadonly { get; set; }
-    public bool IsBlock { get; set; }
     public bool IsSeries { get; set; }
     public Guid CustomRecurrenceId { get; set; }
 
@@ -63,7 +60,6 @@ public class UpsertAppointmentDto
     public int? RecurrenceID { get; set; }
     public string Status { get; set; }
     public int Duration { get; set; }
-    public int CancelReasonId { get; set; }
    
     [NotEmpty(ErrorMessage = "Please select type")]
     public Guid AppointmentTypeId { get; set; }
@@ -79,7 +75,6 @@ public class UpsertAppointmentDto
     [NotEmpty]
     public Guid HcpId { get; set; }
 
-    public string Type { get; set; }
     public string PatientName { get; set; }
     public string DoctorName { get; set; }
 }
