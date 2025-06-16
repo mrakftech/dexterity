@@ -5,7 +5,7 @@
 {
     if (!_loading)
     {
-        <TabTitle Title="Patient Summary" GoBack="GoBackToPatientList" ShowBackButton>
+        <TabTitle Title="Patient Summary" GoBack="GoBackToPatientList" ShowBackButton="@(!IsDialogOpen)">
         </TabTitle>
         <MudItem md="12" Class="vertical-space">
             <InnerLayout ShowHeader="false">
@@ -65,10 +65,11 @@ else
 
 
 @code {
+    [Parameter] public bool IsDialogOpen { get; set; }
     [Parameter] public EventCallback<int> TabChangeClick { get; set; }
     private PatientSummaryDto Patient { get; set; } = new();
     MudTabs _tabs = new();
-    string _tabIndex = "0";
+    readonly string _tabIndex = "0";
     private bool _loading;
 
     protected override async Task OnInitializedAsync()

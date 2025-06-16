@@ -194,7 +194,7 @@
 
     private async Task OpenPatientSummaryModal()
     {
-        var parameters = new DialogParameters {};
+        var parameters = new DialogParameters {{"IsDialogOpen", true}};
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<PatientSummary>("", parameters, options);
     }
