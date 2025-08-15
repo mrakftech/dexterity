@@ -168,7 +168,7 @@
                     await JsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
                     MudDialog.StateHasChanged();
                     StateHasChanged();
-                    LoadConversation();
+                   await LoadConversation();
                 }
             });
             await GetUsersAsync();
@@ -203,7 +203,7 @@
             await UnitOfWork.Messaging.SaveMessageAsync(chatHistory);
             await HubConnection.SendAsync("SendMessageAsync", chatHistory, CurrentUserName);
             CurrentMessage = string.Empty;
-            LoadConversation();
+          await  LoadConversation();
         }
     }
 

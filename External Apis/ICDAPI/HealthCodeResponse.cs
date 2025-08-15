@@ -11,53 +11,53 @@ public class HealthCodeResponse
     public string Title { get; set; }
 
     [JsonPropertyName("stemId")]
-    public string stemId { get; set; }
+    public string StemId { get; set; }
 
     [JsonPropertyName("isLeaf")]
-    public bool isLeaf { get; set; }
+    public bool IsLeaf { get; set; }
 
     [JsonPropertyName("postcoordinationAvailability")]
-    public int postcoordinationAvailability { get; set; }
+    public int PostcoordinationAvailability { get; set; }
 
     [JsonPropertyName("hasCodingNote")]
-    public bool hasCodingNote { get; set; }
+    public bool HasCodingNote { get; set; }
 
     [JsonPropertyName("hasMaternalChapterLink")]
-    public bool hasMaternalChapterLink { get; set; }
+    public bool HasMaternalChapterLink { get; set; }
 
     [JsonPropertyName("hasPerinatalChapterLink")]
-    public bool hasPerinatalChapterLink { get; set; }
+    public bool HasPerinatalChapterLink { get; set; }
 
     [JsonPropertyName("propertiesTruncated")]
-    public bool propertiesTruncated { get; set; }
+    public bool PropertiesTruncated { get; set; }
 
     [JsonPropertyName("isResidualOther")]
-    public bool isResidualOther { get; set; }
+    public bool IsResidualOther { get; set; }
 
     [JsonPropertyName("isResidualUnspecified")]
-    public bool isResidualUnspecified { get; set; }
+    public bool IsResidualUnspecified { get; set; }
 
     [JsonPropertyName("chapter")]
-    public string chapter { get; set; }
+    public string Chapter { get; set; }
 
     [JsonPropertyName("theCode")]
     public string TheCode { get; set; }
 
     [JsonPropertyName("score")]
-    public double score { get; set; }
+    public double Score { get; set; }
 
     [JsonPropertyName("titleIsASearchResult")]
-    public bool titleIsASearchResult { get; set; }
+    public bool TitleIsASearchResult { get; set; }
 
     [JsonPropertyName("titleIsTopScore")]
-    public bool titleIsTopScore { get; set; }
+    public bool TitleIsTopScore { get; set; }
 
     [JsonPropertyName("entityType")]
-    public int entityType { get; set; }
+    public int EntityType { get; set; }
 
     [JsonPropertyName("important")]
-    public bool important { get; set; }
+    public bool Important { get; set; }
 
     [JsonPropertyName("descendants")]
-    public List<object> descendants { get; set; }
+    public List<object> Descendants { get; set; }
 }

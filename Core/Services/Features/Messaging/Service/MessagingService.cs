@@ -273,7 +273,7 @@ public class MessagingService(
         return await context.PatientSmsHistories.CountAsync(x => x.PatientId == patientId);
     }
 
-    public async Task<List<SmsHistory>> GetSmsHistory(Guid patientId, DateTime from, DateTime to)
+    public  Task<List<SmsHistory>> GetSmsHistory(Guid patientId, DateTime from, DateTime to)
     {
         throw new NotImplementedException();
     }
